@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/inventory-service
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+server:
+  port: 8083

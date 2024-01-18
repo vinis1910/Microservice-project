@@ -1,0 +1,30 @@
+version: '3.1'
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - ./datasDb/mongodb-product:/data/mongodb
+  mysql-order:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: order-service
+    volumes:
+      - ./datasDb/mysql-order:/data/mysql
+    ports:
+      - "3306:3306"
+  mysql-inventory:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: inventory-service
+    volumes:
+      - ./datasDb/mysql-inventory:/data/mysql
+    ports:
+      - "3307:3306"m
