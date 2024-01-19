@@ -27,4 +27,4 @@ services:
     volumes:
       - ./datasDb/mysql-inventory:/data/mysql
     ports:
-      - "3307:3306"m
+      - "3307:3306"
