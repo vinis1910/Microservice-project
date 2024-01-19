@@ -17,7 +17,7 @@ public class InventoryController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<InventoryResponse> isInStock(@RequestParam List<String> skucode){
-        return inventoryService.IsInStock(skucode);
+    public List<InventoryResponse> isInStock(@RequestParam List<String> skuCode){
+        return inventoryService.IsInStock(skuCode);
     }
 }
