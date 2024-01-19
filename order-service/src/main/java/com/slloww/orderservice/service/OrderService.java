@@ -7,13 +7,13 @@ import com.slloww.orderservice.DTOs.OrderResponse;
 import com.slloww.orderservice.models.Order;
 import com.slloww.orderservice.models.OrderLineItems;
 import com.slloww.orderservice.repository.OrderRepository;
+import com.slloww.orderservice.service.exceptions.ProductUnavailableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +21,7 @@ import java.util.function.Function;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
     public void PlaceOrder(OrderRequest orderRequest){
 
         Order order = new Order();
@@ -39,21 +39,22 @@ public class OrderService {
                 .map(OrderLineItems::getSkuCode)
                 .toList();
 
-        InventoryResponse[] inventoryResponseArray = webClient.get()
-                .uri("http://localhost:8083/inventory", uriBuilder ->
-                        uriBuilder.queryParam("skuCodes", skuCodes).build())
+        InventoryResponse[] inventoryResponseArray = webClientBuilder.build().get()
+                .uri( "http://localhost:8083/inventory",
+                        uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
                 .block();
 
         boolean allProductsInStock = Arrays.stream(inventoryResponseArray)
                 .allMatch(InventoryResponse::isInStock);
- 
-        if(allProductsInStock){
-            orderRepository.save(order);
-        }else{
-            throw new IllegalArgumentException("Product is not in stock");
+
+        if(!allProductsInStock) {
+            throw new ProductUnavailableException();
         }
+
+        orderRepository.save(order);
+
     }
 
     public List<OrderResponse> findAll(){
@@ -70,7 +71,6 @@ public class OrderService {
         orderResponse.setOrderLineItemsList(order.getOrderLineItemsList());
         return orderResponse;
     }
-
 
     private OrderLineItems mapToDto(OrderLineItemsDto orderLineItemsDto) {
         OrderLineItems orderLineItems = new OrderLineItems();
